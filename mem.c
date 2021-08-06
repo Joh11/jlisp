@@ -17,12 +17,14 @@ mem_t init_mem()
 
     // construct nil
     cell_t* nil = TAG_NIL(cells);
+    // symbols bound to nothing will point to this
+    cell_t* unbound = TAG_NIL(cells + 1);
 
     // construct the free list
-    // free points on the first free cell after nil
-    cell_t* free = TAG_PAIR(cells + 1); 
+    // free points on the first free cell after nil and unbound
+    cell_t* free = TAG_PAIR(cells + 2); 
     cells[1] = (cell_t){.car=CAST(val_t, nil), .cdr=CAST(val_t, TAG_PAIR(cells + 2))};
-    for(size_t n = 1 ; n < ncells - 1; ++n)
+    for(size_t n = 2 ; n < ncells - 1; ++n)
 	cells[n] = (cell_t){.car=CAST(val_t, nil), .cdr=CAST(val_t, TAG_PAIR(cells + n + 1))};
     cells[ncells - 1] = (cell_t){.car=CAST(val_t, nil), .cdr=CAST(val_t, nil)};
 
@@ -37,7 +39,7 @@ mem_t init_mem()
     syms->cell = nil;
     syms->next = NULL;
     
-    return (mem_t){.cells=cells, .free=free, .nil=nil, .syms=syms};
+    return (mem_t){.cells=cells, .free=free, .nil=nil, .unbound=unbound, .syms=syms};
 }
 
 void free_mem(mem_t* mem)
@@ -79,6 +81,7 @@ cell_t* new_sym(mem_t* mem, const char* name)
 
     cell_t* cur = allocate_cell(mem);
     cell->car = CAST(val_t, TAG_PAIR(cur));
+    cell->cdr = CAST(val_t, mem->unbound);
 
     // fill all the filled pairs
     for(size_t n = 0 ; n < nsym_cells ; ++n)

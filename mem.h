@@ -15,7 +15,9 @@ typedef struct
 {
     cell_t* cells;
     cell_t* free;
+    
     cell_t* nil;
+    cell_t* unbound;
 
     sym_list_t* syms;
 } mem_t;

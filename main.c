@@ -6,6 +6,7 @@
 #include "mem.h"
 #include "print.h"
 #include "parser.h"
+#include "eval.h"
 
 int main(int argc, char *argv[])
 {
@@ -13,10 +14,12 @@ int main(int argc, char *argv[])
 
     while(true)
     {
+	printf("> ");
 	cell_t* sexp = parse_one(&mem, stdin, NULL);
 	print_sexp(sexp);
+	printf(" => ");
+	print_sexp(eval(&mem, sexp));
 	printf("\n");
-	debug("free: %p", mem.free);
     }
     
     free_mem(&mem);
