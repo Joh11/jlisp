@@ -1,0 +1,45 @@
+#pragma once
+
+#include <inttypes.h>
+#include <iso646.h>
+
+#define CAST(type, val) ((type)(val))
+#define PACKED __attribute__((__packed__))
+
+typedef enum { false, true } PACKED bool;
+
+#define error(...) (fprintf(stderr, __VA_ARGS__), \
+		    fprintf(stderr, "\n"),	  \
+		    exit(1))
+
+typedef uint64_t val_t;
+typedef uint64_t num_t;
+
+typedef struct
+{
+    val_t car;
+    val_t cdr;
+} PACKED cell_t;
+
+typedef enum
+{
+    NUM, SYM, PAIR, NIL
+} type_t;
+
+#define UNTAG(cell_ptr) CAST(cell_t*, CAST(val_t, cell_ptr) & ~CAST(val_t, 0b1111))
+
+#define TAG_NUM(cell_ptr) (cell_ptr)
+#define TAG_SYM(cell_ptr) CAST(cell_t*, CAST(val_t, cell_ptr) | 0b01)
+#define TAG_PAIR(cell_ptr) CAST(cell_t*, CAST(val_t, cell_ptr) | 0b10)
+#define TAG_NIL(cell_ptr) CAST(cell_t*, CAST(val_t, cell_ptr) | 0b11)
+
+
+type_t cell_type(const cell_t* cell);
+
+int get_num(const cell_t* cell);
+
+bool atomp(const cell_t* cell);
+bool nullp(const cell_t* cell);
+
+cell_t* car(const cell_t* cell);
+cell_t* cdr(const cell_t* cell);
