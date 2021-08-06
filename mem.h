@@ -6,7 +6,7 @@ typedef struct
 {
     cell_t* cells;
     cell_t* free;
-    const cell_t* nil;
+    cell_t* nil;
 } mem_t;
 
 mem_t init_mem();

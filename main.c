@@ -5,15 +5,19 @@
 #include "lisp.h"
 #include "mem.h"
 #include "print.h"
+#include "parser.h"
 
 int main(int argc, char *argv[])
 {
     mem_t mem = init_mem();
 
-    cell_t* bonjour = new_sym(&mem, "bonjour");
-    assert(cell_type(bonjour) == SYM);
-    print_sexp(bonjour);
-
+    while(true)
+    {
+	cell_t* sexp = parse_one(&mem, stdin, NULL);
+	print_sexp(sexp);
+	printf("\n");
+    }
+    
     free_mem(&mem);
     return 0;
 }
