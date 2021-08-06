@@ -14,11 +14,29 @@ void fprint_sexp(FILE* stream, const cell_t* cell)
 	fprint_sym(stream, cell);
 	break;
     case PAIR:
-	fprintf(stream, "( ");
-	fprint_sexp(stream, car(cell));
-	fprintf(stream, " . ");
-	fprint_sexp(stream, cdr(cell));
-	fprintf(stream, " )");
+	fprintf(stream, "(");
+	while(true)
+	{
+	    fprint_sexp(stream, car(cell));
+	    if(nullp(cdr(cell))) // 
+	    {
+		fprintf(stream, ")");
+		break;
+	    } // dotted list
+	    else if(atomp(cdr(cell)))
+	    {
+		fprintf(stream, " . ");
+		fprint_sexp(stream, cdr(cell));
+		fprintf(stream, ")");
+		break;
+	    }
+	    else
+	    {
+		fputc(' ', stream);
+		cell = cdr(cell);
+	    }
+	    
+	}
 	break;
     case NIL:
 	fprintf(stream, "nil");
