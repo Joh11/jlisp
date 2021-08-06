@@ -12,6 +12,13 @@ typedef enum { false, true } PACKED bool;
 		    fprintf(stderr, "\n"),	  \
 		    exit(1))
 
+#define debug(...) (fprintf(stderr, "[debug] %s:%d ", __FILE__, __LINE__), \
+		    fprintf(stderr, __VA_ARGS__),			\
+		    fprintf(stderr, "\n"))
+
+
+#define streq(a, b) (strcmp(a, b) == 0)
+
 typedef uint64_t val_t;
 typedef uint64_t num_t;
 

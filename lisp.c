@@ -32,10 +32,10 @@ bool nullp(const cell_t* cell)
 
 cell_t* car(const cell_t* cell)
 {
-    return UNTAG(cell)->car;
+    return CAST(cell_t*, UNTAG(cell)->car);
 }
 
 cell_t* cdr(const cell_t* cell)
 {
-    return UNTAG(cell)->cdr;
+    return CAST(cell_t*, UNTAG(cell)->cdr);
 }

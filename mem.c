@@ -21,17 +21,38 @@ mem_t init_mem()
     // construct the free list
     // free points on the first free cell after nil
     cell_t* free = TAG_PAIR(cells + 1); 
-    cells[1] = (cell_t){.car=nil, .cdr=TAG_PAIR(cells + 2)};
+    cells[1] = (cell_t){.car=CAST(val_t, nil), .cdr=CAST(val_t, TAG_PAIR(cells + 2))};
     for(size_t n = 1 ; n < ncells - 1; ++n)
-	cells[n] = (cell_t){.car=nil, .cdr=TAG_PAIR(cells + n + 1)};
-    cells[ncells - 1] = (cell_t){.car=nil, .cdr=nil};
+	cells[n] = (cell_t){.car=CAST(val_t, nil), .cdr=CAST(val_t, TAG_PAIR(cells + n + 1))};
+    cells[ncells - 1] = (cell_t){.car=CAST(val_t, nil), .cdr=CAST(val_t, nil)};
+
+
+    // construct the symbol list
+    sym_list_t* syms = malloc(sizeof(sym_list_t));
+    debug("sym: %p", syms);
+    syms->name = malloc(4);
+    debug("name: %p", syms->name);
+    const char nil_str[] = "nil";
+    strcpy(syms->name, nil_str);
+    syms->cell = nil;
+    syms->next = NULL;
     
-    return (mem_t){.cells=cells, .free=free, .nil=nil};
+    return (mem_t){.cells=cells, .free=free, .nil=nil, .syms=syms};
 }
 
 void free_mem(mem_t* mem)
 {
     free(mem->cells);
+
+    // free the symbol list
+    sym_list_t* sym = mem->syms;
+    while(sym != NULL)
+    {
+	free(sym->name);
+	free(sym);
+	sym = sym->next;
+    }
+    
     memset(mem, 0, sizeof(mem_t));
 }
 
@@ -45,46 +66,80 @@ cell_t* new_num(mem_t* mem, int num)
 
 cell_t* new_sym(mem_t* mem, const char* name)
 {
-    cell_t* cell = allocate_cell(mem);
+    // try to find it first
+    cell_t* cell = find_symbol(mem, name);
+    if(cell != NULL) return cell;
+
+    // else make a new one
+    /* cell_t*  */cell = allocate_cell(mem);
 
     size_t len = strlen(name) + 1;
     size_t nsym_cells = len / 8;
     size_t rem_chars = len % 8;
 
     cell_t* cur = allocate_cell(mem);
-    cell->car = TAG_PAIR(cur);
+    cell->car = CAST(val_t, TAG_PAIR(cur));
 
     // fill all the filled pairs
     for(size_t n = 0 ; n < nsym_cells ; ++n)
     {
 	cur->car = *CAST(val_t*, name + 8*n);
 	cell_t* next = allocate_cell(mem);
-	cur->cdr = TAG_PAIR(next);
+	cur->cdr = CAST(val_t, TAG_PAIR(next));
 	cur = next;
     }
 
     cur->car = 0;
     memcpy(&cur->car, name + 8 * nsym_cells, rem_chars);
-    cur->cdr = mem->nil;
+    cur->cdr = CAST(val_t, mem->nil);
+
+    cell = TAG_SYM(cell);
+    // add the symbol to the symbol table
+    add_symbol(mem, name, cell);
     
-    return TAG_SYM(cell);
+    return cell;
 }
 
 cell_t* new_pair(mem_t* mem, cell_t* car, cell_t* cdr)
 {
     cell_t* cell = allocate_cell(mem);
-    cell->car = car;
-    cell->cdr = cdr;
+    cell->car = CAST(val_t, car);
+    cell->cdr = CAST(val_t, cdr);
 
     return TAG_PAIR(cell);
 }
 
 static cell_t* allocate_cell(mem_t* mem)
 {
-    if(nullp(&mem->free))
+    if(nullp(mem->free))
 	error("garbage collector not yet implemented");
 
     cell_t* ret = UNTAG(mem->free);
     mem->free = cdr(mem->free);
     return ret;
+}
+
+cell_t* find_symbol(const mem_t* mem, const char* name)
+{
+    sym_list_t* sym = mem->syms;
+    while(sym != NULL)
+    {
+	if(streq(name, sym->name))
+	    return sym->cell;
+
+	sym = sym->next;
+    }
+    return NULL;
+}
+
+void add_symbol(mem_t* mem, const char* name, cell_t* cell)
+{
+    sym_list_t* sym_list = malloc(sizeof(sym_list_t));
+    size_t len = 1 + strlen(name);
+    sym_list->name = malloc(len);
+    strcpy(sym_list->name, name);
+    sym_list->cell = cell;
+    sym_list->next = mem->syms;
+
+    mem->syms = sym_list;
 }

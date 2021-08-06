@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
 	cell_t* sexp = parse_one(&mem, stdin, NULL);
 	print_sexp(sexp);
 	printf("\n");
+	debug("free: %p", mem.free);
     }
     
     free_mem(&mem);

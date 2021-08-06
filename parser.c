@@ -6,7 +6,7 @@
 #define PARSER_TOKEN_SIZE 1024 // TODO remove this hard limit
 static char token[PARSER_TOKEN_SIZE];
 
-const char* tokenize(FILE *f)
+char* tokenize(FILE *f)
 {
     // remove whitespaces
     int c = fgetc(f);
@@ -65,7 +65,7 @@ const char* tokenize(FILE *f)
     return token;
 }
 
-cell_t* parse_one(mem_t* mem, FILE* f, const char* token)
+cell_t* parse_one(mem_t* mem, FILE* f, char* token)
 {
     // just a trick to be able to cancel the consumption of a token
     if(token == NULL)
@@ -91,7 +91,7 @@ cell_t* parse_one(mem_t* mem, FILE* f, const char* token)
 	// parse the car
 	cell_t* car = parse_one(mem, f, token);
 	if(car == NULL) return NULL;
-	UNTAG(root)->car = car;
+	UNTAG(root)->car = CAST(val_t, car);
 	
 	cell_t* last_cons = root;
 	while(true)
@@ -110,7 +110,7 @@ cell_t* parse_one(mem_t* mem, FILE* f, const char* token)
 		// parse the cdr and end
 		cell_t* cdr = parse_one(mem, f, token);
 		if(cdr == NULL) return NULL;
-		UNTAG(last_cons)->cdr = cdr;
+		UNTAG(last_cons)->cdr = CAST(val_t, cdr);
 		return root;
 	    }
 
@@ -118,8 +118,8 @@ cell_t* parse_one(mem_t* mem, FILE* f, const char* token)
 	    car = parse_one(mem, f, token);
 	    if(car == NULL) return NULL;
 	    
-	    UNTAG(last_cons)->cdr = new_pair(mem, car, mem->nil);
-	    last_cons = UNTAG(last_cons)->cdr;
+	    UNTAG(last_cons)->cdr = CAST(val_t, new_pair(mem, car, mem->nil));
+	    last_cons = CAST(cell_t*, UNTAG(last_cons)->cdr);
 	}
     }
     else if(token_char(token, '\''))
@@ -142,9 +142,9 @@ static bool token_char(const char* token, char c)
     return (strlen(token) == 1) && (token[0] == c);
 }
 
-static cell_t* parse_number(mem_t* mem, char *token)
+static cell_t* parse_number(mem_t* mem, char* token)
 {
-    char *check = token;
+    char* check = token;
     int num = strtol(token, &check, 10);
     if(check == token)
 	return NULL;
