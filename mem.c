@@ -48,6 +48,12 @@ mem_t init_mem()
     // load primitives
     cell_t* prim_sym = new_sym(&mem, "quote");
     UNTAG(prim_sym)->cdr = CAST(val_t, new_prim(&mem, &prim_quote));
+
+    prim_sym = new_sym(&mem, "atom");
+    UNTAG(prim_sym)->cdr = CAST(val_t, new_prim(&mem, &prim_atom));
+
+    prim_sym = new_sym(&mem, "eq");
+    UNTAG(prim_sym)->cdr = CAST(val_t, new_prim(&mem, &prim_eq));
     
     return mem;
 }
