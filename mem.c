@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "prim.h"
+
 #include "mem.h"
 
 // private functions
@@ -20,11 +22,13 @@ mem_t init_mem()
     // symbols bound to nothing will point to this
     cell_t* unbound = TAG_NIL(cells + 1);
 
+    size_t beg = 2; // number of already reserved cells
+    
     // construct the free list
     // free points on the first free cell after nil and unbound
-    cell_t* free = TAG_PAIR(cells + 2); 
-    cells[1] = (cell_t){.car=CAST(val_t, nil), .cdr=CAST(val_t, TAG_PAIR(cells + 2))};
-    for(size_t n = 2 ; n < ncells - 1; ++n)
+    cell_t* free = TAG_PAIR(cells + beg); 
+    cells[beg] = (cell_t){.car=CAST(val_t, nil), .cdr=CAST(val_t, TAG_PAIR(cells + beg))};
+    for(size_t n = beg ; n < ncells - 1; ++n)
 	cells[n] = (cell_t){.car=CAST(val_t, nil), .cdr=CAST(val_t, TAG_PAIR(cells + n + 1))};
     cells[ncells - 1] = (cell_t){.car=CAST(val_t, nil), .cdr=CAST(val_t, nil)};
 
@@ -39,7 +43,13 @@ mem_t init_mem()
     syms->cell = nil;
     syms->next = NULL;
     
-    return (mem_t){.cells=cells, .free=free, .nil=nil, .unbound=unbound, .syms=syms};
+    mem_t mem = (mem_t){.cells=cells, .free=free, .nil=nil, .unbound=unbound, .syms=syms};
+
+    // load primitives
+    cell_t* prim_sym = new_sym(&mem, "quote");
+    UNTAG(prim_sym)->cdr = CAST(val_t, new_prim(&mem, &prim_quote));
+    
+    return mem;
 }
 
 void free_mem(mem_t* mem)
@@ -112,6 +122,14 @@ cell_t* new_pair(mem_t* mem, cell_t* car, cell_t* cdr)
     return TAG_PAIR(cell);
 }
 
+cell_t* new_prim(mem_t* mem, prim_t* prim)
+{
+    // car: function pointer
+    cell_t* cell = allocate_cell(mem);
+    cell->car = CAST(val_t, prim);
+    return TAG_PRIMITIVE(cell);
+}
+
 static cell_t* allocate_cell(mem_t* mem)
 {
     if(nullp(mem->free))
@@ -146,3 +164,19 @@ void add_symbol(mem_t* mem, const char* name, cell_t* cell)
 
     mem->syms = sym_list;
 }
+
+/* char* symbol_name(cell_t* sym) */
+/* { */
+/*     // first pass to get the size */
+/*     size_t len = 0; */
+/*     cell_t cell = cdr(sym); */
+/*     while(not nullp(cell)) */
+/*     { */
+/* 	len += 8; */
+/* 	cell = cdr(cell); */
+/*     } */
+
+/*     char* name = malloc(len); */
+
+/*     return name; */
+/* } */

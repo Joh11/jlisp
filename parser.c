@@ -129,7 +129,8 @@ cell_t* parse_one(mem_t* mem, FILE* f, char* token)
 	if(next == NULL) return NULL;
 
 	// TODO put a proper quote symbol
-	return new_pair(mem, mem->nil, next);
+	return new_pair(mem, new_sym(mem, "quote"),
+			new_pair(mem, next, mem->nil));
     }
     else if(token_char(token, ')'))
 	return NULL; // unexpected )

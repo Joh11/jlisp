@@ -12,6 +12,10 @@ type_t cell_type(const cell_t* cell)
 	return PAIR;
     case 0b0011:
 	return NIL;
+    case 0b0100:
+	return PRIMITIVE;
+    case 0b0101:
+	return LAMBDA;
     }
 }
 
@@ -22,7 +26,7 @@ int get_num(const cell_t* cell)
 
 bool atomp(const cell_t* cell)
 {
-    return !(CAST(num_t, cell) & 0b10);
+    return not (CAST(num_t, cell) & 0b10);
 }
 
 bool nullp(const cell_t* cell)

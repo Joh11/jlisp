@@ -41,6 +41,12 @@ void fprint_sexp(FILE* stream, const cell_t* cell)
     case NIL:
 	fprintf(stream, "nil");
 	break;
+    case PRIMITIVE:
+	fprintf(stream, "<PRIMITIVE>");
+	break;
+    case LAMBDA:
+	fprintf(stream, "<LAMBDA>");
+	break;
     }
 }
 
