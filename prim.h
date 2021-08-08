@@ -3,7 +3,7 @@
 #include "lisp.h"
 #include "mem.h"
 
-// atom eq car cdr cons quote cond lambda define set
+// car cdr cons quote cond lambda define set
 
 cell_t* prim_atom(mem_t* mem, cell_t* args);
 cell_t* prim_eq(mem_t* mem, cell_t* args);

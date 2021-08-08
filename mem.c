@@ -8,6 +8,7 @@
 
 // private functions
 static cell_t* allocate_cell(mem_t* mem);
+static void add_primitive(mem_t* mem, const char* name, prim_t* prim);
 
 mem_t init_mem()
 {
@@ -46,14 +47,13 @@ mem_t init_mem()
     mem_t mem = (mem_t){.cells=cells, .free=free, .nil=nil, .unbound=unbound, .syms=syms};
 
     // load primitives
-    cell_t* prim_sym = new_sym(&mem, "quote");
-    UNTAG(prim_sym)->cdr = CAST(val_t, new_prim(&mem, &prim_quote));
-
-    prim_sym = new_sym(&mem, "atom");
-    UNTAG(prim_sym)->cdr = CAST(val_t, new_prim(&mem, &prim_atom));
-
-    prim_sym = new_sym(&mem, "eq");
-    UNTAG(prim_sym)->cdr = CAST(val_t, new_prim(&mem, &prim_eq));
+    add_primitive(&mem, "quote", &prim_quote);
+    add_primitive(&mem, "atom", &prim_atom);
+    add_primitive(&mem, "eq", &prim_eq);
+    add_primitive(&mem, "car", &prim_car);
+    add_primitive(&mem, "cdr", &prim_cdr);
+    add_primitive(&mem, "cons", &prim_cons);
+    add_primitive(&mem, "cond", &prim_cond);
     
     return mem;
 }
@@ -144,6 +144,12 @@ static cell_t* allocate_cell(mem_t* mem)
     cell_t* ret = UNTAG(mem->free);
     mem->free = cdr(mem->free);
     return ret;
+}
+
+static void add_primitive(mem_t* mem, const char* name, prim_t* prim)
+{
+    cell_t* prim_sym = new_sym(mem, name);
+    UNTAG(prim_sym)->cdr = CAST(val_t, new_prim(mem, prim));
 }
 
 cell_t* find_symbol(const mem_t* mem, const char* name)
