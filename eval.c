@@ -46,7 +46,7 @@ static cell_t* call_dispatch(mem_t* mem, cell_t* callable, cell_t* args)
     case LAMBDA:
 	// a lambda has its car pointing to a
 	// ((arg1 arg2 ...) (exp1 exp2 ...)) list
-	return call_lambda(mem, car(car(callable)), args, car(cdr(car(callable))));
+	return call_lambda(mem, car(car(callable)), args, (cdr(car(callable))));
     default:
 	error("expected a callable");
 	break;
