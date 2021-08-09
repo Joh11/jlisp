@@ -100,7 +100,14 @@ static cell_t* call_macro(mem_t* mem, cell_t* arg_names, cell_t* arg_vals, cell_
     while(not nullp(arg_names))
     { // TODO error handling
 	cell_t* name = car(arg_names);
-	UNTAG(name)->cdr = CAST(val_t, car(arg_vals));
+	if(name == mem->and_rest) // deal with variable number of arguments
+	{
+	    name = car(cdr(arg_names));
+	    UNTAG(name)->cdr = CAST(val_t, arg_vals);
+	    break;
+	}
+	else
+	    UNTAG(name)->cdr = CAST(val_t, car(arg_vals));
 	
 	arg_names = cdr(arg_names);
 	arg_vals = cdr(arg_vals);
