@@ -89,6 +89,14 @@ cell_t* prim_macro(mem_t* mem, cell_t* args)
     return new_macro(mem, args);
 }
 
+cell_t* prim_mod(mem_t* mem, cell_t* args)
+{
+    val_t a = get_num(eval(mem, car(args)));
+    val_t b = get_num(eval(mem, car(cdr(args))));
+
+    return new_num(mem, a % b);
+}
+
 cell_t* bool_to_cell(mem_t* mem, bool b)
 {
     return b ? new_sym(mem, "t") : mem->nil;

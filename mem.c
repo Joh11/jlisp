@@ -35,9 +35,7 @@ mem_t init_mem()
 
     // construct the symbol list
     sym_list_t* syms = malloc(sizeof(sym_list_t));
-    debug("sym: %p", syms);
     syms->name = malloc(4);
-    debug("name: %p", syms->name);
     const char nil_str[] = "nil";
     strcpy(syms->name, nil_str);
     syms->cell = nil;
@@ -62,6 +60,8 @@ mem_t init_mem()
     add_primitive(&mem, "lambda", &prim_lambda);
     add_primitive(&mem, "define", &prim_define);
     add_primitive(&mem, "macro", &prim_macro);
+
+    add_primitive(&mem, "%", &prim_mod);
     
     return mem;
 }
@@ -163,7 +163,10 @@ cell_t* new_macro(mem_t* mem, cell_t* args_body)
 static cell_t* allocate_cell(mem_t* mem)
 {
     if(nullp(mem->free))
-	error("garbage collector not yet implemented");
+	garbage_collect(mem);
+
+    if(nullp(mem->free))
+	error("no more cells after garbage collect");
 
     cell_t* ret = UNTAG(mem->free);
     mem->free = cdr(mem->free);
