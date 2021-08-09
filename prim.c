@@ -74,6 +74,16 @@ cell_t* prim_define(mem_t* mem, cell_t* args)
     return name;
 }
 
+cell_t* prim_set(mem_t* mem, cell_t* args)
+{
+    cell_t* name = eval(mem, car(args));
+    cell_t* val = eval(mem, car(cdr(args)));
+
+    UNTAG(name)->cdr = CAST(val_t, val);
+    
+    return name;
+}
+
 cell_t* bool_to_cell(mem_t* mem, bool b)
 {
     return b ? new_sym(mem, "t") : mem->nil;

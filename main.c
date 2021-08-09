@@ -8,9 +8,13 @@
 #include "parser.h"
 #include "eval.h"
 
+void load_file(mem_t* mem, const char* path);
+
 int main(int argc, char *argv[])
 {
     mem_t mem = init_mem();
+
+    load_file(&mem, "init.l");
 
     while(true)
     {
@@ -24,4 +28,15 @@ int main(int argc, char *argv[])
     
     free_mem(&mem);
     return 0;
+}
+
+void load_file(mem_t* mem, const char* path)
+{
+    FILE* f = fopen(path, "r");
+    cell_t* cell = NULL;
+
+    while(cell = parse_one(mem, f, NULL))
+	eval(mem, cell);
+    
+    fclose(f);
 }
