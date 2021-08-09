@@ -113,11 +113,14 @@ static cell_t* call_macro(mem_t* mem, cell_t* arg_names, cell_t* arg_vals, cell_
 	arg_vals = cdr(arg_vals);
     }
 
-    // eval body
+    // create body
     cell_t* ret = eval_progn(mem, body);
-    
+
     // pop back the initial value of the params
     mem_stack_pop_params(mem);
+
+    // eval body in the upper scope
+    ret = eval(mem, ret);
 
     return ret;
 }

@@ -6,5 +6,4 @@ and PicoLisp.
 * Left to implement
 - comments
 - error checking everywhere
-- =&rest= for lambdas and macros to implement defun correctly
 - arithmetic C-like operators: +, -, *, /, %
