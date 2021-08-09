@@ -45,10 +45,14 @@ void fprint_sexp(FILE* stream, const cell_t* cell)
 	fprintf(stream, "<PRIMITIVE>");
 	break;
     case LAMBDA:
-	fprintf(stream, "<LAMBDA>");
+	fprintf(stream, "<LAMBDA ");
+	fprint_sexp(stream, car(car(cell)));
+	fprintf(stream, ">");
 	break;
     case MACRO:
-	fprintf(stream, "<MACRO>");
+	fprintf(stream, "<MACRO ");
+	fprint_sexp(stream, car(car(cell)));
+	fprintf(stream, ">");
 	break;
     }
 }
