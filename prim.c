@@ -69,6 +69,9 @@ cell_t* prim_define(mem_t* mem, cell_t* args)
     cell_t* name = eval(mem, car(args));
     cell_t* val = eval(mem, car(cdr(args)));
 
+    // push name to the global vars list
+    mem->global_vars = new_pair(mem, name, mem->global_vars);
+    
     UNTAG(name)->cdr = CAST(val_t, val);
     
     return name;

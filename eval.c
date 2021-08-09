@@ -22,6 +22,9 @@ cell_t* eval(mem_t* mem, cell_t* exp)
     case MACRO:
 	return exp;
     case SYM:
+	if(exp == mem->gvar)
+	    return mem->global_vars;
+	
 	if(cdr(exp) == mem->unbound)
 	{
 	    printf("undefined variable: ");

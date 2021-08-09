@@ -29,16 +29,22 @@ typedef struct
     cell_t* nil;
     cell_t* unbound;
     cell_t* and_rest;
+    cell_t* gvar;
 
     sym_list_t* syms;
 
     stack_t* stack;
+
+    cell_t* global_vars;
 } mem_t;
 
 typedef cell_t* prim_t(mem_t* mem, cell_t* args);
 
 mem_t init_mem();
 void free_mem(mem_t* mem);
+
+void garbage_collect(mem_t* mem);
+void mark(mem_t* mem, cell_t* cell);
 
 cell_t* new_num(mem_t* mem, int num);
 cell_t* new_sym(mem_t* mem, const char* name);

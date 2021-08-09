@@ -42,11 +42,14 @@ mem_t init_mem()
     syms->next = NULL;
     
     mem_t mem = (mem_t){.cells=cells, .free=free, .nil=nil, .unbound=unbound,
-	.and_rest=NULL, .syms=syms, .stack=NULL};
-
+	.and_rest=NULL, .gvar=NULL, .syms=syms, .stack=NULL, .global_vars=nil};
+    
     // add &rest, the symbol to allow variadic arguments in lambdas
     // and macros
     mem.and_rest = new_sym(&mem, "&rest");
+    // TODO don't garbage collect it
+
+    mem.gvar = new_sym(&mem, "&gvars");
     // TODO don't garbage collect it
     
     // load primitives
@@ -80,6 +83,40 @@ void free_mem(mem_t* mem)
     }
     
     memset(mem, 0, sizeof(mem_t));
+}
+
+void garbage_collect(mem_t* mem)
+{
+    // what counts as a root:
+    // global variables
+    // stack values
+
+    // what is persistent (= not collected no matter what)
+    // nil, unbound and &rest
+
+    // 1. mark
+    mark(mem, mem->global_vars); // global vars
+    // stack values
+    stack_t* stack = mem->stack;
+    while(stack)
+    {
+	for(size_t n = 0 ; n < stack->n ; ++n)
+	{
+	    mark(mem, stack->names[n]);
+	    mark(mem, stack->values[n]);
+	}
+	
+	stack = stack->next;
+    }
+
+    // 2. sweep
+
+    // 3. unmark
+}
+
+void mark(mem_t* mem, cell_t* cell)
+{
+    // TODO
 }
 
 cell_t* new_num(mem_t* mem, int num)
