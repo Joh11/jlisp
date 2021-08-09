@@ -44,8 +44,13 @@ mem_t init_mem()
     syms->next = NULL;
     
     mem_t mem = (mem_t){.cells=cells, .free=free, .nil=nil, .unbound=unbound,
-	.syms=syms, .stack=NULL};
+	.and_rest=NULL, .syms=syms, .stack=NULL};
 
+    // add &rest, the symbol to allow variadic arguments in lambdas
+    // and macros
+    mem.and_rest = new_sym(&mem, "&rest");
+    // TODO don't garbage collect it
+    
     // load primitives
     add_primitive(&mem, "quote", &prim_quote);
     add_primitive(&mem, "atom", &prim_atom);

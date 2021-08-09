@@ -28,6 +28,7 @@ typedef struct
     
     cell_t* nil;
     cell_t* unbound;
+    cell_t* and_rest;
 
     sym_list_t* syms;
 
