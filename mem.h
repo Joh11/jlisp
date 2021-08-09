@@ -45,6 +45,8 @@ typedef cell_t* prim_t(mem_t* mem, cell_t* args);
 mem_t init_mem();
 void free_mem(mem_t* mem);
 
+void maybe_garbage_collect(mem_t* mem);
+
 void garbage_collect(mem_t* mem);
 void mark(mem_t* mem, cell_t* cell);
 bool markp(mem_t* mem, size_t idx);
@@ -61,6 +63,9 @@ cell_t* new_macro(mem_t* mem, cell_t* arg_body);
 
 cell_t* find_symbol(const mem_t* mem, const char* name);
 void add_symbol(mem_t* mem, const char* name, cell_t* cell);
+void remove_uninterned_symbols(mem_t* mem);
 
 void mem_stack_push_params(mem_t* mem, cell_t* names);
 void mem_stack_pop_params(mem_t* mem);
+
+size_t nfree_cells(const mem_t* mem);

@@ -92,6 +92,15 @@ void free_mem(mem_t* mem)
     memset(mem, 0, sizeof(mem_t));
 }
 
+void maybe_garbage_collect(mem_t* mem)
+{
+    if(nfree_cells(mem) < 30)
+    {
+	debug("garbage collecting ...");
+	garbage_collect(mem);
+    }
+}
+
 void garbage_collect(mem_t* mem)
 {
     debug("garbage collecting ...");
@@ -124,19 +133,19 @@ void garbage_collect(mem_t* mem)
     mark(mem, mem->gvar);
     mark(mem, mem->and_rest);
 
-    debug("is gvar marked ?: %d", markp(mem, UNTAG(mem->gvar) - mem->cells));
-    cell_t* list = new_sym(mem, "list");
-    debug("list index: %ld", UNTAG(list) - mem->cells);
-    debug("is list marked ?: %d", markp(mem, UNTAG(list) - mem->cells));
-    debug("is &rest marked ?: %d", markp(mem, UNTAG(mem->and_rest) - mem->cells));
-    
     // 2. sweep
     sweep(mem);
+
+    // TODO remove uninterned symbols from the symbol table
+    remove_uninterned_symbols(mem);
     
     // 3. unmark
     memset(mem->marks, 0, mem->ncells / 8);
+}
 
-    // remove uninterned symbols from the symbol table
+void remove_uninterned_symbols(mem_t* mem)
+{
+    // TODO
 }
 
 void mark(mem_t* mem, cell_t* cell)
@@ -301,10 +310,7 @@ cell_t* new_macro(mem_t* mem, cell_t* args_body)
 static cell_t* allocate_cell(mem_t* mem)
 {
     if(nullp(mem->free))
-	garbage_collect(mem);
-
-    if(nullp(mem->free))
-	error("no more cells after garbage collect");
+	error("no more cells");
 
     cell_t* ret = UNTAG(mem->free);
     mem->free = cdr(mem->free);
@@ -374,4 +380,16 @@ void mem_stack_pop_params(mem_t* mem)
     free(mem->stack);
 
     mem->stack = new;
+}
+
+size_t nfree_cells(const mem_t* mem)
+{
+    size_t count = 0;
+    cell_t* next = mem->free;
+    while(next != mem->nil)
+    {
+	++count;
+	next = cdr(next);
+    }
+    return count;
 }

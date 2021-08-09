@@ -10,18 +10,6 @@
 
 void load_file(mem_t* mem, const char* path);
 
-void free_cells(const mem_t* mem)
-{
-    size_t count = 0;
-    cell_t* next = mem->free;
-    while(next != mem->nil)
-    {
-	debug("one more");
-	++count;
-	next = cdr(next);
-    }
-    debug("There are %ld used cells", mem->ncells - count);
-}
 
 int main(int argc, char *argv[])
 {
@@ -46,6 +34,8 @@ int main(int argc, char *argv[])
 	printf(" => ");
 	print_sexp(eval(&mem, sexp));
 	printf("\n");
+
+	maybe_garbage_collect(&mem);
     }
     
     free_mem(&mem);
