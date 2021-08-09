@@ -57,7 +57,7 @@ static cell_t* call_dispatch(mem_t* mem, cell_t* callable, cell_t* args)
     case MACRO:
 	return call_macro(mem, car(car(callable)), args, (cdr(car(callable))));
     default:
-	error("expected a callable");
+	error("expected a callable, got a %s", cell_type_string(cell_type(callable)));
 	break;
     }
 }

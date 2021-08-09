@@ -21,6 +21,13 @@ type_t cell_type(const cell_t* cell)
     }
 }
 
+const char* cell_type_string(type_t type)
+{
+    static const char* names[] =
+	{"NUM", "SYM", "PAIR", "NIL", "PRIMITIVE", "LAMBDA", "MACRO"};
+    return names[type];
+}
+
 int get_num(const cell_t* cell)
 {
     return CAST(int, UNTAG(cell)->cdr) >> 4;

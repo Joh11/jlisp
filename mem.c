@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #include "prim.h"
 
@@ -15,7 +16,7 @@ mem_t init_mem()
     if(sizeof(val_t) != sizeof(cell_t*))
 	error("pointers are not 64 bits. ");
     
-    size_t ncells = 1000;
+    size_t ncells = 128; assert(ncells % 8 == 0);
     cell_t* cells = malloc(ncells * sizeof(cell_t));
 
     // construct nil
@@ -41,8 +42,12 @@ mem_t init_mem()
     syms->cell = nil;
     syms->next = NULL;
     
-    mem_t mem = (mem_t){.cells=cells, .free=free, .nil=nil, .unbound=unbound,
-	.and_rest=NULL, .gvar=NULL, .syms=syms, .stack=NULL, .global_vars=nil};
+    mem_t mem = (mem_t){.ncells=ncells, .cells=cells,
+	.free=free, .nil=nil, .unbound=unbound, .and_rest=NULL, .gvar=NULL,
+	.syms=syms, .stack=NULL, .marks=NULL, .global_vars=nil};
+
+    // set the marks array for GC
+    mem.marks = malloc(ncells / 8 * sizeof(uint8_t));
     
     // add &rest, the symbol to allow variadic arguments in lambdas
     // and macros
@@ -72,7 +77,8 @@ mem_t init_mem()
 void free_mem(mem_t* mem)
 {
     free(mem->cells);
-
+    free(mem->marks);
+    
     // free the symbol list
     sym_list_t* sym = mem->syms;
     while(sym != NULL)
@@ -87,6 +93,8 @@ void free_mem(mem_t* mem)
 
 void garbage_collect(mem_t* mem)
 {
+    debug("garbage collecting ...");
+    
     // what counts as a root:
     // global variables
     // stack values
@@ -109,14 +117,70 @@ void garbage_collect(mem_t* mem)
 	stack = stack->next;
     }
 
+    // mark the persistent values
+    mark(mem, mem->nil);
+    mark(mem, mem->unbound);
+    mark(mem, mem->gvar);
+    
     // 2. sweep
-
+    sweep(mem);
+    
     // 3. unmark
+    memset(mem->marks, 0, mem->ncells / 8);
 }
 
 void mark(mem_t* mem, cell_t* cell)
 {
-    // TODO
+    // get the index in the cells array
+    size_t idx = (UNTAG(cell) - mem->cells) / sizeof(cell_t);
+    if(markp(mem, idx)) return;
+
+    // mark the cell
+    setmark(mem, idx);
+
+    // mark its children
+    switch(cell_type(cell))
+    {
+    case SYM:
+	if(UNTAG(cell)->cdr == CAST(val_t, mem->unbound))
+	    break;
+	mark(mem, CAST(cell_t*, UNTAG(cell)->cdr));
+	break;
+    case PAIR:
+	if(not nullp(CAST(cell_t*, UNTAG(cell)->car)))
+	    mark(mem, CAST(cell_t*, UNTAG(cell)->car));
+	if(not nullp(CAST(cell_t*, UNTAG(cell)->cdr)))
+	    mark(mem, CAST(cell_t*, UNTAG(cell)->cdr));
+	break;
+    default: // don't do anything
+	break;
+    }
+}
+
+bool markp(mem_t* mem, size_t idx)
+{
+    return mem->marks[idx / 8] >> (idx % 8) & 0b1;
+}
+
+bool setmark(mem_t* mem, size_t idx)
+{
+    mem->marks[idx / 8] |= 0b1 << (idx % 8);
+}
+
+void sweep(mem_t* mem)
+{
+    size_t count = 0;
+    for(size_t n = 0 ; n < mem->ncells ; ++n)
+    {
+	if(not markp(mem, n)) // free it !
+	{
+	    ++count;
+	    mem->cells[n] = (cell_t){.car=CAST(val_t, mem->nil),
+		.cdr=CAST(val_t, mem->free)};
+	    mem->free = TAG_PAIR(mem->cells + n);
+	}
+    }
+    debug("freed %ld cells. ", count);
 }
 
 cell_t* new_num(mem_t* mem, int num)

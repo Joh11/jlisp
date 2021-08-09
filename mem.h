@@ -23,6 +23,7 @@ typedef struct stack_struct
 
 typedef struct
 {
+    size_t ncells;
     cell_t* cells;
     cell_t* free;
     
@@ -34,6 +35,7 @@ typedef struct
     sym_list_t* syms;
 
     stack_t* stack;
+    uint8_t* marks;
 
     cell_t* global_vars;
 } mem_t;
@@ -45,6 +47,9 @@ void free_mem(mem_t* mem);
 
 void garbage_collect(mem_t* mem);
 void mark(mem_t* mem, cell_t* cell);
+bool markp(mem_t* mem, size_t idx);
+bool setmark(mem_t* mem, size_t idx);
+void sweep(mem_t* mem);
 
 cell_t* new_num(mem_t* mem, int num);
 cell_t* new_sym(mem_t* mem, const char* name);

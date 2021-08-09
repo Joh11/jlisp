@@ -45,6 +45,7 @@ typedef enum
 #define TAG_MACRO(cell_ptr) CAST(cell_t*, CAST(val_t, cell_ptr) | 0b110)
 
 type_t cell_type(const cell_t* cell);
+const char* cell_type_string(type_t type);
 
 int get_num(const cell_t* cell);
 
