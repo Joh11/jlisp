@@ -16,7 +16,7 @@ mem_t init_mem()
     if(sizeof(val_t) != sizeof(cell_t*))
 	error("pointers are not 64 bits. ");
     
-    size_t ncells = 128; assert(ncells % 8 == 0);
+    size_t ncells = 160; assert(ncells % 8 == 0);
     cell_t* cells = malloc(ncells * sizeof(cell_t));
 
     // construct nil
@@ -47,7 +47,8 @@ mem_t init_mem()
 	.syms=syms, .stack=NULL, .marks=NULL, .global_vars=nil};
 
     // set the marks array for GC
-    mem.marks = malloc(ncells / 8 * sizeof(uint8_t));
+    mem.marks = malloc(ncells / 8);
+    memset(mem.marks, 0, ncells / 8);
     
     // add &rest, the symbol to allow variadic arguments in lambdas
     // and macros
@@ -94,7 +95,7 @@ void free_mem(mem_t* mem)
 void garbage_collect(mem_t* mem)
 {
     debug("garbage collecting ...");
-    
+
     // what counts as a root:
     // global variables
     // stack values
@@ -121,18 +122,27 @@ void garbage_collect(mem_t* mem)
     mark(mem, mem->nil);
     mark(mem, mem->unbound);
     mark(mem, mem->gvar);
+    mark(mem, mem->and_rest);
+
+    debug("is gvar marked ?: %d", markp(mem, UNTAG(mem->gvar) - mem->cells));
+    cell_t* list = new_sym(mem, "list");
+    debug("list index: %ld", UNTAG(list) - mem->cells);
+    debug("is list marked ?: %d", markp(mem, UNTAG(list) - mem->cells));
+    debug("is &rest marked ?: %d", markp(mem, UNTAG(mem->and_rest) - mem->cells));
     
     // 2. sweep
     sweep(mem);
     
     // 3. unmark
     memset(mem->marks, 0, mem->ncells / 8);
+
+    // remove uninterned symbols from the symbol table
 }
 
 void mark(mem_t* mem, cell_t* cell)
 {
     // get the index in the cells array
-    size_t idx = (UNTAG(cell) - mem->cells) / sizeof(cell_t);
+    size_t idx = UNTAG(cell) - mem->cells;
     if(markp(mem, idx)) return;
 
     // mark the cell
@@ -142,15 +152,26 @@ void mark(mem_t* mem, cell_t* cell)
     switch(cell_type(cell))
     {
     case SYM:
-	if(UNTAG(cell)->cdr == CAST(val_t, mem->unbound))
-	    break;
-	mark(mem, CAST(cell_t*, UNTAG(cell)->cdr));
+	// mark value if bound
+	if(not (UNTAG(cell)->cdr == CAST(val_t, mem->unbound)))
+	    mark(mem, CAST(cell_t*, UNTAG(cell)->cdr));
+	// mark symbol name
+	cell_t* pair = car(cell);
+	while(pair != mem->nil)
+	{
+	    setmark(mem, UNTAG(pair) - mem->cells);
+	    pair = cdr(pair);
+	}
 	break;
     case PAIR:
 	if(not nullp(CAST(cell_t*, UNTAG(cell)->car)))
 	    mark(mem, CAST(cell_t*, UNTAG(cell)->car));
 	if(not nullp(CAST(cell_t*, UNTAG(cell)->cdr)))
 	    mark(mem, CAST(cell_t*, UNTAG(cell)->cdr));
+	break;
+    case LAMBDA:
+    case MACRO:
+	mark(mem, car(cell));
 	break;
     default: // don't do anything
 	break;
@@ -167,12 +188,28 @@ bool setmark(mem_t* mem, size_t idx)
     mem->marks[idx / 8] |= 0b1 << (idx % 8);
 }
 
+bool occupiedp(const mem_t* mem, const cell_t* cell)
+{ // TODO this is quadratic in the number of free cells, nothing
+  // better ?
+    // don't think so, and anyway the number of free cells on a
+    // garbage collector call should be small anyway.
+    cell = UNTAG(cell);
+    cell_t* free = mem->free;
+    while(free != mem->nil)
+    {
+	if(UNTAG(free) == cell)
+	    return false;
+	free = cdr(free);
+    }
+    return true;
+}
+
 void sweep(mem_t* mem)
 {
     size_t count = 0;
     for(size_t n = 0 ; n < mem->ncells ; ++n)
     {
-	if(not markp(mem, n)) // free it !
+	if(not markp(mem, n) and occupiedp(mem, mem->cells+n)) // free it !
 	{
 	    ++count;
 	    mem->cells[n] = (cell_t){.car=CAST(val_t, mem->nil),
@@ -198,7 +235,7 @@ cell_t* new_sym(mem_t* mem, const char* name)
     if(cell != NULL) return cell;
 
     // else make a new one
-    /* cell_t*  */cell = allocate_cell(mem);
+    cell = allocate_cell(mem);
 
     size_t len = strlen(name) + 1;
     size_t nsym_cells = len / 8;

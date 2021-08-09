@@ -50,6 +50,7 @@ void mark(mem_t* mem, cell_t* cell);
 bool markp(mem_t* mem, size_t idx);
 bool setmark(mem_t* mem, size_t idx);
 void sweep(mem_t* mem);
+bool occupiedp(const mem_t* mem, const cell_t* cell);
 
 cell_t* new_num(mem_t* mem, int num);
 cell_t* new_sym(mem_t* mem, const char* name);
