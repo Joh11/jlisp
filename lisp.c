@@ -43,3 +43,15 @@ cell_t* cdr(const cell_t* cell)
 {
     return CAST(cell_t*, UNTAG(cell)->cdr);
 }
+
+size_t list_len(const cell_t* cell)
+{ // TODO error handling
+    size_t n = 0;
+    while(not nullp(cell))
+    {
+	++n;
+	cell = cdr(cell);
+    }
+
+    return n;
+}

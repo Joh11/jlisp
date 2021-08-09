@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdlib.h>
 #include <inttypes.h>
 #include <iso646.h>
 
@@ -51,3 +52,5 @@ bool nullp(const cell_t* cell);
 
 cell_t* car(const cell_t* cell);
 cell_t* cdr(const cell_t* cell);
+
+size_t list_len(const cell_t* cell);

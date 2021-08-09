@@ -59,6 +59,20 @@ cell_t* prim_cond(mem_t* mem, cell_t* args)
     return mem->nil;
 }
 
+cell_t* prim_lambda(mem_t* mem, cell_t* args)
+{
+    return new_lambda(mem, args);
+}
+
+cell_t* prim_define(mem_t* mem, cell_t* args)
+{
+    cell_t* name = eval(mem, car(args));
+    cell_t* val = eval(mem, car(cdr(args)));
+
+    UNTAG(name)->cdr = CAST(val_t, val);
+    
+    return name;
+}
 
 cell_t* bool_to_cell(mem_t* mem, bool b)
 {

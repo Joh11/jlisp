@@ -11,6 +11,16 @@ typedef struct sym_list_struct
     
 } sym_list_t;
 
+struct stack_struct;
+typedef struct stack_struct
+{
+    cell_t** names;
+    cell_t** values;
+    size_t n;
+
+    struct stack_struct* next;
+} stack_t;
+
 typedef struct
 {
     cell_t* cells;
@@ -20,6 +30,8 @@ typedef struct
     cell_t* unbound;
 
     sym_list_t* syms;
+
+    stack_t* stack;
 } mem_t;
 
 typedef cell_t* prim_t(mem_t* mem, cell_t* args);
@@ -31,8 +43,11 @@ cell_t* new_num(mem_t* mem, int num);
 cell_t* new_sym(mem_t* mem, const char* name);
 cell_t* new_pair(mem_t* mem, cell_t* car, cell_t* cdr);
 cell_t* new_prim(mem_t* mem, prim_t* prim);
+cell_t* new_lambda(mem_t* mem, cell_t* arg_body);
+
 
 cell_t* find_symbol(const mem_t* mem, const char* name);
 void add_symbol(mem_t* mem, const char* name, cell_t* cell);
 
-// char* symbol_name(cell_t* sym);
+void mem_stack_push_params(mem_t* mem, cell_t* names);
+void mem_stack_pop_params(mem_t* mem);

@@ -33,7 +33,6 @@ mem_t init_mem()
 	cells[n] = (cell_t){.car=CAST(val_t, nil), .cdr=CAST(val_t, TAG_PAIR(cells + n + 1))};
     cells[ncells - 1] = (cell_t){.car=CAST(val_t, nil), .cdr=CAST(val_t, nil)};
 
-
     // construct the symbol list
     sym_list_t* syms = malloc(sizeof(sym_list_t));
     debug("sym: %p", syms);
@@ -44,7 +43,8 @@ mem_t init_mem()
     syms->cell = nil;
     syms->next = NULL;
     
-    mem_t mem = (mem_t){.cells=cells, .free=free, .nil=nil, .unbound=unbound, .syms=syms};
+    mem_t mem = (mem_t){.cells=cells, .free=free, .nil=nil, .unbound=unbound,
+	.syms=syms, .stack=NULL};
 
     // load primitives
     add_primitive(&mem, "quote", &prim_quote);
@@ -54,6 +54,9 @@ mem_t init_mem()
     add_primitive(&mem, "cdr", &prim_cdr);
     add_primitive(&mem, "cons", &prim_cons);
     add_primitive(&mem, "cond", &prim_cond);
+    add_primitive(&mem, "lambda", &prim_lambda);
+    add_primitive(&mem, "define", &prim_define);
+
     
     return mem;
 }
@@ -136,6 +139,14 @@ cell_t* new_prim(mem_t* mem, prim_t* prim)
     return TAG_PRIMITIVE(cell);
 }
 
+cell_t* new_lambda(mem_t* mem, cell_t* args_body)
+{
+    // car: (args ...body) list
+    cell_t* cell = allocate_cell(mem);
+    cell->car = CAST(val_t, args_body);
+    return TAG_LAMBDA(cell);
+}
+
 static cell_t* allocate_cell(mem_t* mem)
 {
     if(nullp(mem->free))
@@ -177,18 +188,36 @@ void add_symbol(mem_t* mem, const char* name, cell_t* cell)
     mem->syms = sym_list;
 }
 
-/* char* symbol_name(cell_t* sym) */
-/* { */
-/*     // first pass to get the size */
-/*     size_t len = 0; */
-/*     cell_t cell = cdr(sym); */
-/*     while(not nullp(cell)) */
-/*     { */
-/* 	len += 8; */
-/* 	cell = cdr(cell); */
-/*     } */
+void mem_stack_push_params(mem_t* mem, cell_t* names)
+{
+    size_t n = list_len(names);
+    stack_t* new = malloc(sizeof(stack_t));
 
-/*     char* name = malloc(len); */
+    new->names = malloc(sizeof(cell_t*) * n);
+    new->values = malloc(sizeof(cell_t*) * n);
+    new->n = n;
+    new->next = mem->stack;
 
-/*     return name; */
-/* } */
+    mem->stack = new;
+
+    // fill the name -> value pairs
+    for(size_t i = 0 ; i < n ; ++i)
+    {
+	new->names[i] = car(names);
+	new->values[i] = cdr(car(names));
+	names = cdr(names);
+    }
+}
+
+void mem_stack_pop_params(mem_t* mem)
+{
+    for(size_t i = 0 ; i < mem->stack->n ; ++i)
+	UNTAG(mem->stack->names[i])->cdr = CAST(val_t, mem->stack->values[i]);
+
+    free(mem->stack->names);
+    free(mem->stack->values);
+    stack_t* new = mem->stack->next;
+    free(mem->stack);
+
+    mem->stack = new;
+}
