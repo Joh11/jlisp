@@ -6,4 +6,3 @@ and PicoLisp.
 * Left to implement
 - comments
 - error checking everywhere
-- arithmetic C-like operators: +, -, *, /, %

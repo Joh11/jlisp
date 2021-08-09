@@ -16,7 +16,7 @@ mem_t init_mem()
     if(sizeof(val_t) != sizeof(cell_t*))
 	error("pointers are not 64 bits. ");
     
-    size_t ncells = 160; assert(ncells % 8 == 0);
+    size_t ncells = 1024; assert(ncells % 8 == 0);
     cell_t* cells = malloc(ncells * sizeof(cell_t));
 
     // construct nil
@@ -70,6 +70,10 @@ mem_t init_mem()
     add_primitive(&mem, "define", &prim_define);
     add_primitive(&mem, "macro", &prim_macro);
 
+    add_primitive(&mem, "+", &prim_plus);
+    add_primitive(&mem, "-", &prim_minus);
+    add_primitive(&mem, "*", &prim_times);
+    add_primitive(&mem, "/", &prim_divide);
     add_primitive(&mem, "%", &prim_mod);
     
     return mem;

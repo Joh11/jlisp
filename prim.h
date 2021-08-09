@@ -18,6 +18,10 @@ cell_t* prim_set(mem_t* mem, cell_t* args);
 cell_t* prim_macro(mem_t* mem, cell_t* args);
 
 // other primitives
+cell_t* prim_plus(mem_t* mem, cell_t* args);
+cell_t* prim_minus(mem_t* mem, cell_t* args);
+cell_t* prim_times(mem_t* mem, cell_t* args);
+cell_t* prim_divide(mem_t* mem, cell_t* args);
 cell_t* prim_mod(mem_t* mem, cell_t* args);
 
 cell_t* bool_to_cell(mem_t* mem, bool b);

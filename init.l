@@ -12,4 +12,3 @@
 (defmacro defun (name args &rest body)
   (list 'define (list 'quote name)
 	(cons 'lambda (cons args body))))
-

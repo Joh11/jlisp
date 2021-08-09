@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "eval.h"
 
 #include "prim.h"
@@ -92,6 +94,55 @@ cell_t* prim_macro(mem_t* mem, cell_t* args)
     return new_macro(mem, args);
 }
 
+cell_t* prim_plus(mem_t* mem, cell_t* args)
+{
+    val_t ret = 0;
+    while(args != mem->nil)
+    {
+	ret += get_num(car(args));
+	args = cdr(args);
+    }
+    return new_num(mem, ret);
+}
+
+cell_t* prim_minus(mem_t* mem, cell_t* args)
+{
+    val_t ret = get_num(car(args));
+    args = cdr(args);
+    while(args != mem->nil)
+    {
+	ret -= get_num(car(args));
+	args = cdr(args);
+    }
+    return new_num(mem, ret);
+}
+
+cell_t* prim_times(mem_t* mem, cell_t* args)
+{
+    val_t ret = 1;
+    while(args != mem->nil)
+    {
+	ret *= get_num(car(args));
+	args = cdr(args);
+    }
+    return new_num(mem, ret);
+}
+
+cell_t* prim_divide(mem_t* mem, cell_t* args)
+{
+    val_t ret = get_num(car(args));
+    args = cdr(args);
+    while(args != mem->nil)
+    {
+	val_t n = get_num(car(args));
+	if(n == 0)
+	    error("division by zero");
+	ret /= n;
+	args = cdr(args);
+    }
+    return new_num(mem, ret);
+}
+    
 cell_t* prim_mod(mem_t* mem, cell_t* args)
 {
     val_t a = get_num(eval(mem, car(args)));
