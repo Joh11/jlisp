@@ -31,7 +31,7 @@ bool atomp(const cell_t* cell)
 
 bool nullp(const cell_t* cell)
 {
-    return CAST(val_t, cell) & 0b11 != 0;
+    return cell_type(cell) == NIL;
 }
 
 cell_t* car(const cell_t* cell)

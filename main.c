@@ -16,6 +16,15 @@ int main(int argc, char *argv[])
 
     load_file(&mem, "init.l");
 
+    if(argc > 1)
+    {
+	for(size_t n = 1 ; n < argc ; ++n)
+	{
+	    printf("loading %s... \n", argv[n]);
+	    load_file(&mem, argv[n]);
+	}
+    }
+
     while(true)
     {
 	printf("> ");
