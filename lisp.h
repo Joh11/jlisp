@@ -31,7 +31,7 @@ typedef struct
 
 typedef enum
 {
-    NUM, SYM, PAIR, NIL, PRIMITIVE, LAMBDA
+    NUM, SYM, PAIR, NIL, PRIMITIVE, LAMBDA, MACRO
 } type_t;
 
 #define UNTAG(cell_ptr) CAST(cell_t*, CAST(val_t, cell_ptr) & ~CAST(val_t, 0b1111))
@@ -42,6 +42,7 @@ typedef enum
 #define TAG_NIL(cell_ptr) CAST(cell_t*, CAST(val_t, cell_ptr) | 0b11)
 #define TAG_PRIMITIVE(cell_ptr) CAST(cell_t*, CAST(val_t, cell_ptr) | 0b100)
 #define TAG_LAMBDA(cell_ptr) CAST(cell_t*, CAST(val_t, cell_ptr) | 0b101)
+#define TAG_MACRO(cell_ptr) CAST(cell_t*, CAST(val_t, cell_ptr) | 0b110)
 
 type_t cell_type(const cell_t* cell);
 

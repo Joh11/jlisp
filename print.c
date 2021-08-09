@@ -47,6 +47,9 @@ void fprint_sexp(FILE* stream, const cell_t* cell)
     case LAMBDA:
 	fprintf(stream, "<LAMBDA>");
 	break;
+    case MACRO:
+	fprintf(stream, "<MACRO>");
+	break;
     }
 }
 

@@ -15,5 +15,6 @@ cell_t* prim_cond(mem_t* mem, cell_t* args);
 cell_t* prim_lambda(mem_t* mem, cell_t* args);
 cell_t* prim_define(mem_t* mem, cell_t* args);
 cell_t* prim_set(mem_t* mem, cell_t* args);
+cell_t* prim_macro(mem_t* mem, cell_t* args);
 
 cell_t* bool_to_cell(mem_t* mem, bool b);

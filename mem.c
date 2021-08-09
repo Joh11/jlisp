@@ -56,7 +56,7 @@ mem_t init_mem()
     add_primitive(&mem, "cond", &prim_cond);
     add_primitive(&mem, "lambda", &prim_lambda);
     add_primitive(&mem, "define", &prim_define);
-
+    add_primitive(&mem, "macro", &prim_macro);
     
     return mem;
 }
@@ -145,6 +145,14 @@ cell_t* new_lambda(mem_t* mem, cell_t* args_body)
     cell_t* cell = allocate_cell(mem);
     cell->car = CAST(val_t, args_body);
     return TAG_LAMBDA(cell);
+}
+
+cell_t* new_macro(mem_t* mem, cell_t* args_body)
+{
+    // same as lambda
+    cell_t* cell = allocate_cell(mem);
+    cell->car = CAST(val_t, args_body);
+    return TAG_MACRO(cell);
 }
 
 static cell_t* allocate_cell(mem_t* mem)
