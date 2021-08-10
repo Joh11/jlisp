@@ -68,6 +68,7 @@ mem_t init_mem()
     add_primitive(&mem, "cond", &prim_cond);
     add_primitive(&mem, "lambda", &prim_lambda);
     add_primitive(&mem, "define", &prim_define);
+    add_primitive(&mem, "set", &prim_set);
     add_primitive(&mem, "macro", &prim_macro);
 
     add_primitive(&mem, "+", &prim_plus);

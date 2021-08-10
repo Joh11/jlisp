@@ -27,6 +27,9 @@
 (define 'second cadr)
 (define 'third caddr)
 
+(defun append (a xs)
+  (cons a xs))
+
 (defun last (list)
   (cond ((null? list) nil)
 	((null? (cdr list)) (car list))
@@ -38,12 +41,15 @@
 (defun progn (&rest body)
   (last body))
 
+;; TODO fix this
 (defmacro quasiquote (exp)
   (cond ((atom? exp) (list 'quote exp))
 	(t (cond ((eq (car exp) 'unquote) (cadr exp))
 		 (t (cons (quasiquote (car exp))
 			  (quasiquote (cdr exp))))))))
 
+;; `(cond (,test ,then)
+;; 	 (t ,else))
 (defmacro if (test then &rest else)
-  `(cond (,test ,then)
-	 (t ,else)))
+  (list 'cond (list test then)
+	(list t (cons 'progn else))))

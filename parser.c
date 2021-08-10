@@ -17,8 +17,8 @@ char* tokenize(FILE *f)
     if(c == EOF)
 	return NULL;
 
-    // remove comment
-    if(c == ';')
+    // remove comments
+    while(c == ';')
     {
 	// consume everything until EOF or a newline is reached
 	do
