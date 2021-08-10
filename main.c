@@ -30,6 +30,14 @@ int main(int argc, char *argv[])
     {
 	printf("> ");
 	cell_t* sexp = parse_one(&mem, stdin, NULL);
+	if(sexp == NULL) // likely that EOF or error happened
+	{
+	    const char* msg = parse_error();
+	    if(msg != NULL)
+		error("parse error: %s", msg);
+	    break;
+	}
+	
 	print_sexp(sexp);
 	printf(" => ");
 	print_sexp(eval(&mem, sexp));

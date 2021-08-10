@@ -6,6 +6,8 @@
 #define PARSER_TOKEN_SIZE 1024 // TODO remove this hard limit
 static char token[PARSER_TOKEN_SIZE];
 
+static char parse_error_str[1024] = "";
+
 char* tokenize(FILE *f)
 {
     // remove whitespaces
@@ -87,7 +89,11 @@ cell_t* parse_one(mem_t* mem, FILE* f, char* token)
 	// if not ) then we are sure it is at least a cons
 	cell_t* root = new_pair(mem, mem->nil, mem->nil);
 	if(token_char(token, '.'))
+	{
+	    strcpy(parse_error_str, "There cannot be a . in first position");
 	    return NULL; // there cannot be a . in first position
+	}
+	    
 	// parse the car
 	cell_t* car = parse_one(mem, f, token);
 	if(car == NULL) return NULL;
@@ -136,6 +142,13 @@ cell_t* parse_one(mem_t* mem, FILE* f, char* token)
 	return NULL; // unexpected )
     else // in this case it is a symbol
 	return new_sym(mem, token);
+}
+
+const char* parse_error()
+{
+    if(parse_error_str[0] == '\0')
+	return NULL;
+    return parse_error_str;
 }
 
 static bool token_char(const char* token, char c)

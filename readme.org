@@ -6,3 +6,4 @@ and PicoLisp.
 * Left to implement
 - comments
 - error checking everywhere
+- not crashing on C-D
