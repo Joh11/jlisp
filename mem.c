@@ -60,7 +60,7 @@ mem_t init_mem()
     
     // load primitives
     add_primitive(&mem, "quote", &prim_quote);
-    add_primitive(&mem, "atom", &prim_atom);
+    add_primitive(&mem, "atom?", &prim_atom);
     add_primitive(&mem, "eq", &prim_eq);
     add_primitive(&mem, "car", &prim_car);
     add_primitive(&mem, "cdr", &prim_cdr);

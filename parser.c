@@ -17,6 +17,20 @@ char* tokenize(FILE *f)
     if(c == EOF)
 	return NULL;
 
+    // remove comment
+    if(c == ';')
+    {
+	// consume everything until EOF or a newline is reached
+	do
+	    c = fgetc(f);
+	while(c != '\n' and c != EOF);
+	// trim once again the whitespaces
+	while(isspace(c))
+	    c = fgetc(f);
+	if(c == EOF)
+	    return NULL;
+    }
+    
     // shortcutting single char tokens
     switch(c)
     {
@@ -24,14 +38,30 @@ char* tokenize(FILE *f)
     case '.':
     case ')':
     case '\'':
+    case '`':
 	token[0] = c;
 	token[1] = '\0';
 	return token;
 	break;
+    case ',':
+	token[0] = c;
+	c = fgetc(f);
+	if(c == '@')
+	{
+	    token[1] = c;
+	    token[2] = '\0';
+	    return token;
+	}
+	if(c != EOF)
+	    ungetc(c, f);
+	token[1] = '\0';
+	return token;
     default:
 	break;
     }
 
+    
+    
     // number
     if(isdigit(c))
     {
@@ -134,8 +164,34 @@ cell_t* parse_one(mem_t* mem, FILE* f, char* token)
 	cell_t* next = parse_one(mem, f, NULL);
 	if(next == NULL) return NULL;
 
-	// TODO put a proper quote symbol
 	return new_pair(mem, new_sym(mem, "quote"),
+			new_pair(mem, next, mem->nil));
+    }
+    else if(token_char(token, '`'))
+    {
+	// make a new quasi-quote cons before reading the inside
+	cell_t* next = parse_one(mem, f, NULL);
+	if(next == NULL) return NULL;
+
+	return new_pair(mem, new_sym(mem, "quasiquote"),
+			new_pair(mem, next, mem->nil));
+    }
+    else if(token_char(token, ','))
+    {
+	// make a new unquote cons before reading the inside
+	cell_t* next = parse_one(mem, f, NULL);
+	if(next == NULL) return NULL;
+
+	return new_pair(mem, new_sym(mem, "unquote"),
+			new_pair(mem, next, mem->nil));
+    }
+    else if(streq(token, ",@"))
+    {
+	// make a new unquote-splicing cons before reading the inside
+	cell_t* next = parse_one(mem, f, NULL);
+	if(next == NULL) return NULL;
+
+	return new_pair(mem, new_sym(mem, "unquote-splicing"),
 			new_pair(mem, next, mem->nil));
     }
     else if(token_char(token, ')'))
@@ -161,7 +217,10 @@ static cell_t* parse_number(mem_t* mem, char* token)
     char* check = token;
     int num = strtol(token, &check, 10);
     if(check == token)
+    {
+	sprintf(parse_error_str, "Invalid integer: %s", token);
 	return NULL;
+    }
 
     return new_num(mem, num);
 }

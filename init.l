@@ -16,6 +16,17 @@
 (defun null? (exp)
   (eq exp nil))
 
+;; list manipulation functions
+(defun cadr (x) (car (cdr x)))
+(defun caar (x) (car (car x)))
+(defun cdar (x) (cdr (car x)))
+(defun cddr (x) (cdr (cdr x)))
+(defun caddr (x) (car (cdr (cdr x))))
+
+(define 'first car)
+(define 'second cadr)
+(define 'third caddr)
+
 (defun last (list)
   (cond ((null? list) nil)
 	((null? (cdr list)) (car list))
@@ -26,6 +37,12 @@
 
 (defun progn (&rest body)
   (last body))
+
+(defmacro quasiquote (exp)
+  (cond ((atom? exp) (list 'quote exp))
+	(t (cond ((eq (car exp) 'unquote) (cadr exp))
+		 (t (cons (quasiquote (car exp))
+			  (quasiquote (cdr exp))))))))
 
 (defmacro if (test then &rest else)
   `(cond (,test ,then)
