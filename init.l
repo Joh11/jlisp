@@ -16,6 +16,12 @@
 (defun null? (exp)
   (eq exp nil))
 
+(defmacro defq (var value)
+  (list 'define (list 'quote var) value))
+
+(defmacro setq (var value)
+  (list 'set (list 'quote var) value))
+
 ;; list manipulation functions
 (defun cadr (x) (car (cdr x)))
 (defun caar (x) (car (car x)))
@@ -48,8 +54,6 @@
 		 (t (cons (quasiquote (car exp))
 			  (quasiquote (cdr exp))))))))
 
-;; `(cond (,test ,then)
-;; 	 (t ,else))
 (defmacro if (test then &rest else)
   (list 'cond (list test then)
 	(list t (cons 'progn else))))

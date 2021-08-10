@@ -86,7 +86,7 @@ cell_t* prim_set(mem_t* mem, cell_t* args)
 
     UNTAG(name)->cdr = CAST(val_t, val);
     
-    return name;
+    return val;
 }
 
 cell_t* prim_macro(mem_t* mem, cell_t* args)
