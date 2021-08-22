@@ -16,7 +16,7 @@ mem_t init_mem()
     if(sizeof(val_t) != sizeof(cell_t*))
 	error("pointers are not 64 bits. ");
     
-    size_t ncells = 1024; assert(ncells % 8 == 0);
+    size_t ncells = 2048; assert(ncells % 8 == 0);
     cell_t* cells = malloc(ncells * sizeof(cell_t));
 
     // construct nil

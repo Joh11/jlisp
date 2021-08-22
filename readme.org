@@ -7,3 +7,5 @@ and PicoLisp.
 - comments
 - error checking everywhere
 - not crashing on C-D
+- make quasiquote working
+- proper GC handling
