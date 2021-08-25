@@ -9,23 +9,15 @@
 #include "eval.h"
 
 void load_file(mem_t* mem, const char* path);
-
+void load_argv_files(mem_t* mem, int argc, char* argv[]);
 
 int main(int argc, char *argv[])
 {
     mem_t mem = init_mem();
 
     load_file(&mem, "init.l");
-
-    if(argc > 1)
-    {
-	for(size_t n = 1 ; n < argc ; ++n)
-	{
-	    printf("loading %s... \n", argv[n]);
-	    load_file(&mem, argv[n]);
-	}
-    }
-
+    load_argv_files(&mem, argc, argv);
+    
     while(true)
     {
 	printf("> ");
@@ -59,4 +51,13 @@ void load_file(mem_t* mem, const char* path)
 	eval(mem, cell);
     
     fclose(f);
+}
+
+void load_argv_files(mem_t* mem, int argc, char* argv[])
+{
+    for(size_t n = 1 ; n < argc ; ++n)
+    {
+	printf("loading %s... \n", argv[n]);
+	load_file(mem, argv[n]);
+    }
 }
