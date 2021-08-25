@@ -11,7 +11,7 @@ char* tokenize(FILE *f);
 
 // try to parse a single sexp
 // if failed return NULL
-cell_t* parse_one(mem_t* mem, FILE *f, char* token);
+cell_t* parse_one(mem_t* mem, FILE* f, char* token);
 
 // returns a description of the error, or NULL if no error happened
 const char* parse_error();
