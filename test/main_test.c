@@ -4,6 +4,7 @@
 
 #include "../mem.h"
 #include "../parser.h"
+#include "../eval.h"
 
 #include "test.h"
 
@@ -26,8 +27,18 @@ void test_parse()
 
 int main()
 {
+    // all the C tests
     test_parse();
+
+    printf("all %ld C tests passed\n", test_count);
+
+    // all the Lisp tests
+    mem_t mem = init_mem();
+    load_file(&mem, "init.l");
+    load_file(&mem, "test/test.l");
+    free_mem(&mem);
+
+    printf("all Lisp tests passed\n");
     
-    printf("all %ld tests passed\n", test_count);
     return 0;
 }

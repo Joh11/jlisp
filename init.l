@@ -48,20 +48,20 @@
   (last body))
 
 ;; TODO fix this
-(defmacro quasiquote (exp)
-  (cond ((atom? exp) (list 'quote exp))
-	;; in this case it's a list
-	(t (cond ((eq (car exp) 'unquote)
-		  (cadr exp))
-		 (t (list 'quote (cons (car exp)
-				       (cdr exp))))))))
+;; (defmacro quasiquote (exp)
+;;   (cond ((atom? exp) (list 'quote exp))
+;; 	;; in this case it's a list
+;; 	(t (cond ((eq (car exp) 'unquote)
+;; 		  (cadr exp))
+;; 		 (t (list 'quote (cons (car exp)
+;; 				       (cdr exp))))))))
 
-(defun quasiquote-fun (exp)
-  (cond ((atom? exp) exp)
-	(t (cond ((eq (car exp) 'unquote) (cadr exp))
-		 (t (cons (quasiquote-fun (car exp))
-			  (quasiquote-fun (cdr exp))))))))
+;; (defun quasiquote-fun (exp)
+;;   (cond ((atom? exp) exp)
+;; 	(t (cond ((eq (car exp) 'unquote) (cadr exp))
+;; 		 (t (cons (quasiquote-fun (car exp))
+;; 			  (quasiquote-fun (cdr exp))))))))
 
-(defmacro if (test then &rest else)
-  (list 'cond (list test then)
-	(list t (cons 'progn else))))
+;; (defmacro if (test then &rest else)
+;;   (list 'cond (list test then)
+;; 	(list t (cons 'progn else))))

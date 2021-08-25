@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "print.h"
+#include "parser.h"
 
 #include "eval.h"
 
@@ -10,6 +11,20 @@ static cell_t* call_lambda(mem_t* mem, cell_t* arg_names, cell_t* arg_vals, cell
 static cell_t* call_macro(mem_t* mem, cell_t* arg_names, cell_t* arg_vals, cell_t* body);
 static cell_t* eval_progn(mem_t* mem, cell_t* body);
 static cell_t* eval_list(mem_t* mem, const cell_t* list);
+
+void load_file(mem_t* mem, const char* path)
+{
+    FILE* f = fopen(path, "r");
+    cell_t* cell = NULL;
+
+    if(f == NULL)
+	error("file to load not found: %s", path);
+
+    while(cell = parse_one(mem, f, NULL))
+	eval(mem, cell);
+    
+    fclose(f);
+}
 
 cell_t* eval(mem_t* mem, cell_t* exp)
 {
