@@ -4,8 +4,6 @@ A simple lisp interpreter, closer to the original lisp implementation
 and PicoLisp.
 
 * Left to implement
-- comments
-- error checking everywhere
-- not crashing on C-D
 - make quasiquote working
+- error checking everywhere
 - proper GC handling
