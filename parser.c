@@ -8,6 +8,14 @@ static char token[PARSER_TOKEN_SIZE];
 
 static char parse_error_str[1024] = "";
 
+cell_t* parse_from_string(mem_t* mem, const char* str)
+{
+    FILE* s = fmemopen(str, strlen(str), "r");
+    cell_t* ret = parse_one(mem, s, NULL);
+    fclose(s);
+    return ret;
+}
+
 char* tokenize(FILE *f)
 {
     // remove whitespaces

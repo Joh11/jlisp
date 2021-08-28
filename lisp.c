@@ -30,6 +30,7 @@ const char* cell_type_string(type_t type)
 
 int get_num(const cell_t* cell)
 {
+    assert(cell_type(cell) == NUM);
     return CAST(int, UNTAG(cell)->cdr) >> 4;
 }
 

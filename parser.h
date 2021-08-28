@@ -13,6 +13,8 @@ char* tokenize(FILE *f);
 // if failed return NULL
 cell_t* parse_one(mem_t* mem, FILE* f, char* token);
 
+cell_t* parse_from_string(mem_t* mem, const char* str);
+
 // returns a description of the error, or NULL if no error happened
 const char* parse_error();
 

@@ -1,7 +1,9 @@
 #pragma once
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <inttypes.h>
+#include <assert.h>
 #include <iso646.h>
 
 #define CAST(type, val) ((type)(val))
