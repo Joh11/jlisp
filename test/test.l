@@ -1,3 +1,8 @@
+;; test for list operations
+(assert (eq 0 (length nil)))
+(assert (eq 1 (length (list 'a))))
+(assert (eq 3 (length (list 'a 'b (list 'c 'd)))))
+
 ;; test for logical operations
 (assert (not nil))
 (assert (and t t))

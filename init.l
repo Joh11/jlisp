@@ -41,6 +41,10 @@
 	((null? (cdr list)) (car list))
 	(t (last (cdr list)))))
 
+(defun length (list)
+  (if (null? list) 0
+      (+ 1 (length (cdr list)))))
+
 (defun prog1 (&rest body)
   (car body))
 
@@ -79,6 +83,12 @@
 
 ;; TODO fix this
 (defmacro quasiquote (exp)
+  (quasiquote-fun exp))
+
+(defun quasiquote-fun (exp)
   (cond ((atom? exp) (list 'quote exp))
 	;; in this case it's a list
-	(t (list 'quote (mapcar (lambda (x) x) exp)))))
+	((eq 'unquote (car exp)) (progn
+				   (assert (eq 2 (length exp)))
+				   (cdr exp)))
+	(t (cons 'list (mapcar quasiquote-fun exp)))))
