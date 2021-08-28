@@ -17,13 +17,6 @@ int main(int argc, char *argv[])
     load_file(&mem, "init.l");
     load_argv_files(&mem, argc, argv);
 
-    cell_t* c = parse_from_string(&mem, "((lambda (x) (+ 1 x)) 1)");
-    // cell_t* c = parse_from_string(&mem, "((lambda (x) x) 1)");
-    print_sexp(c);
-    printf(" => ");
-    print_sexp(eval(&mem, c));
-    printf("\n");
-    
     while(true)
     {
 	printf("> ");
