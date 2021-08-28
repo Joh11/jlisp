@@ -21,7 +21,13 @@ void load_file(mem_t* mem, const char* path)
 	error("file to load not found: %s", path);
 
     while(cell = parse_one(mem, f, NULL))
-	eval(mem, cell);
+    {
+	print_sexp(cell);
+	printf(" ~> ");
+	print_sexp(eval(mem, cell));
+	printf("\n");
+    }
+    
     
     fclose(f);
 }
@@ -44,6 +50,7 @@ cell_t* eval(mem_t* mem, cell_t* exp)
 	{
 	    printf("undefined variable: ");
 	    print_sexp(exp);
+	    printf("\n");
 	    error("fatal error. ");
 	}
 	return cdr(exp);

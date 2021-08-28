@@ -51,6 +51,27 @@
   (list 'cond (list test then)
 	(list t (cons 'progn else))))
 
+;; logical operations
+(defun not (a)
+  (null? a))
+
+;; TODO remove the and and or primitives
+
+(defun deep-eq (a b)
+  (cond ((or (null? a) (null? b)) (eq a b))
+	((and (list? a) (list? b))
+	 (and (eq (car a) (car b))
+	      (deep-eq (cdr a) (cdr b))))
+	(t (eq a b))))
+
+(defun error (message)
+  (print message)
+  (exit 1))
+
+(defun assert (x)
+  (if x x
+      (error 'assertion-failed)))
+
 (defun mapcar (fun xs)
   (if (null? xs)
       nil

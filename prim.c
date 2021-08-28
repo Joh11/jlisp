@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "eval.h"
+#include "print.h"
 
 #include "prim.h"
 
@@ -149,6 +150,51 @@ cell_t* prim_mod(mem_t* mem, cell_t* args)
     val_t b = get_num(eval(mem, car(cdr(args))));
 
     return new_num(mem, a % b);
+}
+
+cell_t* prim_print(mem_t* mem, cell_t* args)
+{
+    cell_t* ret = eval(mem, car(args));
+    print_sexp(ret);
+    return ret;
+}
+
+cell_t* prim_exit(mem_t* mem, cell_t* args)
+{
+    val_t ret = get_num(eval(mem, car(args)));
+    exit(ret);
+}
+
+cell_t* prim_listp(mem_t* mem, cell_t* args)
+{
+    cell_t* a = eval(mem, car(args));
+    return bool_to_cell(mem,
+			cell_type(a) == NIL or
+			cell_type(a) == PAIR);
+}
+
+cell_t* prim_or(mem_t* mem, cell_t* args)
+{
+    while(args != mem->nil)
+    {
+	if(not nullp(eval(mem, car(args))))
+	    return bool_to_cell(mem, true);
+	args = cdr(args);
+    }
+
+    return bool_to_cell(mem, false);
+}
+
+cell_t* prim_and(mem_t* mem, cell_t* args)
+{
+    while(args != mem->nil)
+    {
+	if(nullp(eval(mem, car(args))))
+	    return bool_to_cell(mem, false);
+	args = cdr(args);
+    }
+
+    return bool_to_cell(mem, true);
 }
 
 cell_t* bool_to_cell(mem_t* mem, bool b)

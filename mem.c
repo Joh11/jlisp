@@ -76,6 +76,12 @@ mem_t init_mem()
     add_primitive(&mem, "*", &prim_times);
     add_primitive(&mem, "/", &prim_divide);
     add_primitive(&mem, "%", &prim_mod);
+
+    add_primitive(&mem, "print", &prim_print);
+    add_primitive(&mem, "exit", &prim_exit);
+    add_primitive(&mem, "list?", &prim_listp);
+    add_primitive(&mem, "or", &prim_or);
+    add_primitive(&mem, "and", &prim_and);
     
     return mem;
 }
