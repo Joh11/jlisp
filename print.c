@@ -1,5 +1,7 @@
 #include "print.h"
 
+static char string_buf[1024]; // I know it's terrible, it's only for debug
+
 // private functions
 static void fprint_sym(FILE* stream, const cell_t* cell);
 
@@ -60,6 +62,15 @@ void fprint_sexp(FILE* stream, const cell_t* cell)
 void print_sexp(const cell_t* cell)
 {
     fprint_sexp(stdout, cell);
+}
+
+const char* sprint_sexp(const cell_t* cell)
+{
+    FILE* f = fmemopen(string_buf, sizeof(string_buf), "w");
+    fprint_sexp(f, cell);
+    fputc('\0', f);
+    fclose(f);
+    return string_buf;
 }
 
 static void fprint_sym(FILE* stream, const cell_t* cell)

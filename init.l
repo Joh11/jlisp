@@ -41,9 +41,11 @@
 	((null? (cdr list)) (car list))
 	(t (last (cdr list)))))
 
-(defun length (list)
-  (if (null? list) 0
-      (+ 1 (length (cdr list)))))
+;; Replacing xs -> list (shadowing) does not work due to the macro
+;; expansion of if, which requires list for now
+(defun length (xs)
+  (if (null? xs) 0
+      (+ 1 (length (cdr xs)))))
 
 (defun prog1 (&rest body)
   (car body))
