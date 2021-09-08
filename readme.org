@@ -1,9 +1,8 @@
 #+title: A simple lisp interpreter
 
-A simple lisp interpreter, closer to the original lisp implementation
-and PicoLisp.
+A simple Lisp interpreter written in C. 
 
-* Left to implement
-- make quasiquote working
-- error checking everywhere
-- proper GC handling
+Main features:
+- Lisp-1 (single namespace for functions and variables)
+- unhygienic macros, /à la/ Common Lisp
+- mark and sweep GC
