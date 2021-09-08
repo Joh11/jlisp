@@ -6,3 +6,10 @@ Main features:
 - Lisp-1 (single namespace for functions and variables)
 - unhygienic macros, /à la/ Common Lisp
 - mark and sweep GC
+
+* Setup
+#+begin_src bash
+    make
+    make tests # optional
+    ./jlisp
+#+end_src
